@@ -9,6 +9,8 @@ import Rivals from "./components/Rivals";
 import Runner, { Avatar3D, Sprite, type AvatarId } from "./components/Runner";
 import ThemePicker, { THEMES, type ThemeId } from "./components/ThemePicker";
 import { playAlarmSiren, playDiscoBeat } from "./discoSound";
+import GameAudio from "./components/GameAudio";
+import { isGameAudioEnabled, playGameEffect } from "./gameSound";
 
 const LAST_USER = "75hard.user";
 const THEME_KEY = "75hard.theme";
@@ -224,7 +226,7 @@ export default function App() {
 
   const partyTime = () => {
     setDisco(true);
-    playDiscoBeat(4200);
+    if (isGameAudioEnabled()) playDiscoBeat(4200);
     window.clearTimeout(discoTimer.current);
     discoTimer.current = window.setTimeout(() => setDisco(false), 4200);
   };
@@ -297,6 +299,11 @@ export default function App() {
       setDetail(res.day);
       setBoard((b) => b.map((p) => (p.user_id === meId ? res.progress : p)));
 
+      if (!t.done) {
+        playGameEffect("jump");
+        playGameEffect("coin");
+      }
+
       const nowFullClear = res.day.tasks.length > 0 && res.day.tasks.every((x) => x.done);
       const becameFullClear = day === todayISO() && !wasFullClear && nowFullClear;
       if (day === todayISO() && !wasPerfect && res.progress.perfect_today) {
@@ -305,7 +312,10 @@ export default function App() {
       } else if (becameFullClear) {
         flash("Full clear - nothing left today");
       }
-      if (becameFullClear) partyTime();
+      if (becameFullClear) {
+        playGameEffect("win");
+        partyTime();
+      }
     });
   };
 
@@ -427,6 +437,7 @@ export default function App() {
             ))}
           </div>
           <ThemePicker theme={theme} onPick={setTheme} />
+          <GameAudio />
           {users.map((u) => (
             <button
               key={u.id}
