@@ -10,6 +10,7 @@ import Runner, { Avatar3D, Sprite, type AvatarId } from "./components/Runner";
 import ThemePicker, { THEMES, type ThemeId } from "./components/ThemePicker";
 import { playAlarmSiren, playDiscoBeat } from "./discoSound";
 import GameAudio from "./components/GameAudio";
+import DailyFocus from "./components/DailyFocus";
 import { isGameAudioEnabled, playGameEffect } from "./gameSound";
 
 const LAST_USER = "75hard.user";
@@ -483,6 +484,8 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      <DailyFocus detail={detail} onToggle={toggle} onToday={() => setDay(todayISO())} />
 
       <section className="hero">
         <div>

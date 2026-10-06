@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { DayDetail, TaskItem } from "../types";
+import { todayISO } from "../api";
 
 export type AvatarId = "guy" | "girl";
 
@@ -118,6 +119,7 @@ export default function Runner({
   const total = tasks.length;
 
   const [running, setRunning] = useState(false);
+  const [expanded, setExpanded] = useState(() => localStorage.getItem("75hard.runnerExpanded") !== "off");
   const prevDone = useRef(doneCount);
   const runTimer = useRef<number | undefined>(undefined);
 
@@ -139,20 +141,24 @@ export default function Runner({
   // Step 0 is the starting platform (nobody done yet); steps 1..total sit
   // one per task, each further right and higher than the last -- a
   // staircase the avatar climbs (and jumps between) as tasks get ticked.
-  const stepRise = Math.min(16, 110 / Math.max(1, total));
+  const stepRise = Math.min(12, 75 / Math.max(1, total));
   const stepPos = (k: number) => ({
     left: (k / (total + 1)) * 100,
     bottom: 10 + k * stepRise,
   });
 
   return (
-    <div className="card">
-      <div className="card-head">
-        <h2>Today's run</h2>
+    <details className="card runner-card" open={expanded} onToggle={(event) => {
+      const open = event.currentTarget.open;
+      setExpanded(open);
+      localStorage.setItem("75hard.runnerExpanded", open ? "on" : "off");
+    }}>
+      <summary className="card-head runner-summary">
+        <h2>{detail.day === todayISO() ? "Today's run" : "Selected day's run"}</h2>
         <span className="count num">
-          {doneCount}/{total}
+          {doneCount}/{total} <span className="runner-chevron" aria-hidden="true">⌄</span>
         </span>
-      </div>
+      </summary>
 
       <div className="stairs">
         <div className="ground" style={{ left: `${stepPos(0).left}%`, bottom: stepPos(0).bottom }} />
@@ -202,6 +208,6 @@ export default function Runner({
           </div>
         </div>
       </div>
-    </div>
+    </details>
   );
 }
