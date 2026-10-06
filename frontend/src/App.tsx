@@ -8,10 +8,10 @@ import Badges from "./components/Badges";
 import Rivals from "./components/Rivals";
 import Runner, { Avatar3D, Sprite, type AvatarId } from "./components/Runner";
 import ThemePicker, { THEMES, type ThemeId } from "./components/ThemePicker";
-import { playAlarmSiren, playDiscoBeat } from "./discoSound";
+import { playAlarmSiren } from "./discoSound";
 import GameAudio from "./components/GameAudio";
 import DailyFocus from "./components/DailyFocus";
-import { isGameAudioEnabled, playGameEffect } from "./gameSound";
+import { playGameEffect } from "./gameSound";
 
 const LAST_USER = "75hard.user";
 const THEME_KEY = "75hard.theme";
@@ -228,7 +228,6 @@ export default function App() {
 
   const partyTime = () => {
     setDisco(true);
-    if (isGameAudioEnabled()) playDiscoBeat(4200);
     window.clearTimeout(discoTimer.current);
     discoTimer.current = window.setTimeout(() => setDisco(false), 4200);
   };
@@ -301,7 +300,7 @@ export default function App() {
       setDetail(res.day);
       setBoard((b) => b.map((p) => (p.user_id === meId ? res.progress : p)));
 
-      if (!t.done) {
+      if (!t.done && day === todayISO()) {
         playGameEffect("jump");
         playGameEffect("coin");
       }
