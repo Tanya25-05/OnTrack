@@ -115,7 +115,7 @@ def compute(session: Session, user: User, today: Optional[date] = None) -> Progr
     today = today or date.today()
     tasks = active_tasks(session, user.id)
     core_ids = {t.id for t in tasks if t.is_core}
-    done_by_day = _completions_by_day(session, user.id)
+    done_by_day = completions_by_day(session, user.id)
 
     def day_stats(day: date):
         done = done_by_day.get(day, set())

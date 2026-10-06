@@ -157,6 +157,7 @@ function AlarmOverlay({ task, onDone }: { task: TaskItem; onDone: () => void }) 
 
 export default function App() {
   const [users, setUsers] = useState<User[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [meId, setMeId] = useState<number | null>(null);
   const [board, setBoard] = useState<Progress[]>([]);
   const [day, setDay] = useState(todayISO());
@@ -254,9 +255,9 @@ export default function App() {
 
   useEffect(() => {
     const saved = Number(localStorage.getItem(LAST_USER)) || undefined;
-    loadUsers(saved).then((list) => {
-      if (list.length) loadBoard(saved ?? list[0].id);
-    });
+    loadUsers(saved).then(async (list) => {
+      if (list.length) await loadBoard(saved ?? list[0].id);
+    }).catch(() => setLoadError("Could not load your dashboard. Check that the backend is running, then retry."));
   }, [loadUsers, loadBoard]);
 
   useEffect(() => {
@@ -266,7 +267,7 @@ export default function App() {
       setDetail(d);
       setNote(d.note);
       setNoteState("idle");
-    });
+    }).catch(() => setLoadError("Could not load your tasks. Check that the backend is running, then retry."));
   }, [meId, day]);
 
   // The alarm condition (current time vs. wake_time) isn't itself reactive
@@ -366,6 +367,7 @@ export default function App() {
     });
   };
 
+  if (loadError) return <div className="shell" role="alert"><p>{loadError}</p><button className="btn" onClick={() => location.reload()}>Retry</button></div>;
   if (users === null) return <div className="shell muted">loading...</div>;
 
   if (users.length === 0) {
